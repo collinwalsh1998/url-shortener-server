@@ -41,6 +41,28 @@ module.exports.generateURL = function(req, res) {
     });
 }
 
+module.exports.redirect = function(req, res) {
+    let urlId = req.params.urlId;
+
+    if(!urlId) {
+        res.status(400);
+        res.json({ success: false, message: "An error occurred while redirecting" });
+        return;
+    }
+
+    Url.findOne({ shortened_url: urlId }, "-_id -__v -shortener_id -shortened_url -created_at", function(error, result) {
+        if(error || !result) {
+            res.status(400);
+            res.json({ success: false, message: "An error occurred while redirecting" });
+            return;
+        }
+
+        result = result.toObject();
+        res.redirect(result.url);
+        return;
+    });
+}
+
 function validateUrl(url) {
     let urlPattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     
